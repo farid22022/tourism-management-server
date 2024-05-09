@@ -3,7 +3,7 @@ const cors = require('cors');
 const app = express();
 require('dotenv').config();
 const port = process.env.PORT || 5000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId} = require('mongodb');
 
 //middle ware
 app.use(cors());
@@ -29,12 +29,87 @@ async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+    const spotCollection = client.db('spotDB').collection('spot');
+    const visitedCollection = client.db('spotDB').collection('visitedspot');
+
+
+
+    app.get('/spot', async(req, res)=>{
+      const cursor = spotCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
+    app.post('/spot', async(req, res)=> {
+      const newSpot = req.body;
+      console.log(newSpot);
+      const result = await spotCollection.insertOne(newSpot);
+      res.send(result);
+    })
+
+    app.get('/spot/:id' , async(req ,res) =>{
+      const id = req.params.id;
+      const query = {_id : new ObjectId(id)}
+      const result = await spotCollection.findOne(query);
+      res.send(result);
+    })
+
+    app.put('/spot/:id', async(req, res)=>{
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const options = {upsert: true};
+      const updatedSpot = req.body;
+      const Spot = {
+        $set:{
+            image: updatedSpot.image, 
+            tourSpot: updatedSpot.tourSpot,country, 
+            country : updatedSpot.country,
+            location : updatedSpot.location,
+            description: updatedSpot.description, 
+            cost: updatedSpot.cost, 
+            season: updatedSpot.season, 
+            time: updatedSpot.time, 
+            total: updatedSpot.total, 
+            email: updatedSpot. email,
+            name: updatedSpot.name,
+        }
+      }
+
+      const result = await spotCollection.updateOne(filter,Spot, options);
+      res.send(result);
+    })
+
+    app.delete('/spot/:id', async(req, res)=>{
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id) };
+      const result = await spotCollection.deleteOne(query);
+      res.send(result);
+    })
+
+
+    //visited place
+    app.get('/visitedspot', async(req, res)=>{
+      const cursor = visitedCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
+    app.post('/visitedspot', async(req, res)=> {
+      const newSpot = req.body;
+      console.log(newSpot);
+      const result = await visitedCollection.insertOne(newSpot);
+      res.send(result);
+    })
+
+
+
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
-    await client.close();
+    // await client.close();
   }
 }
 run().catch(console.dir);
