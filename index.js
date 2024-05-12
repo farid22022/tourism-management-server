@@ -31,7 +31,7 @@ async function run() {
     await client.connect();
     const spotCollection = client.db('spotDB').collection('spot');
     const visitedCollection = client.db('spotDB').collection('visitedspot');
-    const commentCollection = client.db('spotDB').collection('comment');
+    const commentCollection = client.db('spotDB').collection('feed');
 
 
 
@@ -103,16 +103,16 @@ async function run() {
     })
 
     //comment section
-    app.get('/comment', async(req, res)=>{
+    app.get('/feed', async(req, res)=>{
       const cursor = commentCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     })
 
-    app.post('/comment', async(req, res)=> {
-      const newSpot = req.body;
-      console.log(newSpot);
-      const result = await commentCollection.insertOne(newSpot);
+    app.post('/feed', async(req, res)=> {
+      const newFeed = req.body;
+      console.log(newFeed);
+      const result = await commentCollection.insertOne(newFeed);
       res.send(result);
     })
 
