@@ -6,7 +6,15 @@ const port = process.env.PORT || 5000;
 const { MongoClient, ServerApiVersion, ObjectId} = require('mongodb');
 
 //middle ware
-app.use(cors());
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://tourism-management-syste-e300e.web.app',
+    'tourism-management-syste-e300e.firebaseapp.com'
+  ],
+  credentials: true,
+}));
 app.use(express.json());
 
 
@@ -28,7 +36,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const spotCollection = client.db('spotDB').collection('spot');
     const visitedCollection = client.db('spotDB').collection('visitedspot');
     const commentCollection = client.db('spotDB').collection('feed');
@@ -38,6 +46,7 @@ async function run() {
     app.get('/spot', async(req, res)=>{
       const cursor = spotCollection.find();
       const result = await cursor.toArray();
+      console.log(result)
       res.send(result);
     })
 
@@ -63,7 +72,7 @@ async function run() {
       const Spot = {
         $set:{
             image: updatedSpot.image, 
-            tourSpot: updatedSpot.tourSpot,country, 
+            tourSpot: updatedSpot.tourSpot,
             country : updatedSpot.country,
             location : updatedSpot.location,
             description: updatedSpot.description, 
